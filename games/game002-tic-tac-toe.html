@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<style>
+			#board{
+				background-color:black;
+			}
+			
+			td.cell{
+				background-color:green;
+				width:50px;
+				height:50px;
+				color:white;
+				font-size:30px;
+				font-weight:bold;
+				text-align:center;
+			}
+			
+			form,h1,h2,h3,table{
+				margin:30px;
+			}
+			
+		</style>
+		<script>
+			<!--ゲーム盤の大きさ-->
+			var inputsize =0;
+			<!--駒-->
+			var symbol1="○";
+			var symbol2="×";
+			
+			<!--マスのリスト-->
+			var cellList=[];
+			<!--選択可能なマスのインデックスリスト-->
+			var cellNumList=[];
+			<!--マスに入力された値のリスト-->
+			var cellValueList=[];
+			<!--ゲーム結果判定用-->
+			var decisionList=[];
+			var endFlg=0;
+			var reCheckFlg=0;
+	
+		<!--起動時に実行-->
+			function init(){
+				makePullMenu();
+				makeGameBoard();
+				document.getElementById("title").innerHTML=symbol1 + symbol2 +"ゲーム"
+			}
+		
+		<!--ボード作成-->
+			function makeGameBoard(){
+				cellList=[];
+				cellNumList=[];
+				decisionList=[];
+				endFlg=0;
+				
+				var num=document.makeboardmenu.pullmenu.selectedIndex;
+				inputsize=num+3;
+				
+				var b = document.getElementById("board");
+				b.innerHTML="";
+				
+				for(var i=0;i<inputsize*inputsize;i++){
+					cellNumList.push(i);
+				}
+				
+				for(var i=0;i<inputsize;i++){
+					var tr =document.createElement("tr");
+					
+					for(var j=0;j<inputsize;j++){
+						cellList.push("cell"+ i + j);
+						cellValueList.push(0);
+						
+						var td = document.createElement("td");
+						td.className="cell";
+						td.id="cell"+ i + j;
+						td.onclick = clicked;
+						tr.appendChild(td);
+					}
+					b.appendChild(tr);
+				}
+
+			}
+		
+		<!--ボードをクリックしたときの処理-->
+			function clicked(e){
+				if(endFlg==1){
+					exit;
+				}
+				
+				if(cellNumList.length===0){
+					checkGameResult();
+					document.getElementById("info").textContent="引き分けです('ω')"
+					endFlg=1;
+					exit;
+				}
+				
+				var choice=cellList.indexOf(e.target.id);
+				var choiceNum=cellNumList.indexOf(choice);			
+				if(choiceNum==-1){
+					document.getElementById("info").textContent="既に選択されています";
+					exit;
+				}
+				document.getElementById(e.target.id).innerHTML=symbol1;
+				cellValueList.splice(choice,1,symbol1);
+				cellNumList.splice(choiceNum,1);
+				checkGameResult();
+				cpuAct();
+			}
+			
+		<!--対戦相手の行動-->	
+			function cpuAct(){
+				if(cellNumList.length===0){
+					checkGameResult();
+					endFlg=1;
+					exit;
+				}
+				
+				var r=cellNumList[Math.floor(Math.random()*cellNumList.length)];
+				document.getElementById(cellList[r]).innerHTML=symbol2;
+				cellValueList.splice(r,1,symbol2);
+				cellNumList.splice(cellNumList.indexOf(r),1);
+				checkGameResult();
+				document.getElementById("info").textContent="あなたのターンです";
+			}
+			
+		<!--ゲーム結果判定-->
+			function checkGameResult(){
+				
+				<!--横の判定-->
+				for(i=0;i<inputsize;i++){
+					decisionList=[];
+					for(j=0;j<inputsize;j++){
+						decisionList.push(cellValueList[inputsize*i+j]);
+					}
+					printGameResult();
+				}
+				
+				<!--縦の判定-->
+				for(i=0;i<inputsize;i++){
+					decisionList=[];
+					for(j=0;j<inputsize;j++){
+						decisionList.push(cellValueList[inputsize*j+i]);
+					}
+					printGameResult();
+				}
+				
+				<!--右斜め\の判定-->
+				decisionList=[];
+				for(i=0;i<inputsize;i++){
+					decisionList.push(cellValueList[i*(inputsize+1)]);
+				}
+				printGameResult();
+				
+				<!--左斜め/の判定-->
+				decisionList=[];
+				for(i=0;i<inputsize;i++){
+					decisionList.push(cellValueList[(i+1)*(inputsize-1)]);
+				}
+				printGameResult();
+				
+			}
+			
+			
+			<!--共通処理：判定結果表示-->
+				function printGameResult(){
+					var checkval=decisionList.filter(function(x,i,self){return self.indexOf(x)===i;}) 
+					if(checkval.length===1 && checkval[0]==symbol1){
+						document.getElementById("info").textContent="勝ちました (＞ω＜) ";
+						endFlg=1;
+						exit;
+					}else if(checkval.length===1 && checkval[0]==symbol2){
+						document.getElementById("info").textContent="負けました(TωT)";
+						endFlg=1;
+						exit;
+					}
+				}
+			
+		<!--ボードの大きさ選択肢作成-->
+			function makePullMenu(){
+				var max=100;
+				var pullmenu = document.getElementById("select1");
+				for(i=3;i<max+1;i++){
+				var option = document.createElement("option");
+				option.id="menu"+i;
+				pullmenu.appendChild(option)
+				document.getElementById("menu"+i).innerHTML= i + " × " + i;
+				}
+			}
+		</script>			
+	</head>
+	
+	<body onload="init()">
+		<h1 id="title"></h1>
+		
+		<form id="form1" name="makeboardmenu" onchange="makeGameBoard()">
+		ボード作成：　<select id="select1" name="pullmenu"></select>
+		</form>
+		
+		<form id="form2" name="start_end">
+		<input type="button" value="ゲーム開始" onclick="makeGameBoard()">
+		<input type="button" value="もう一度遊ぶ" onclick="location.reload();">
+		<input type="button" value="ゲーム終了" onclick="window.close();">
+		</form>
+		
+		<h3 style="color:red;">VS 人工無能</h3>
+		<h3 id="info">あなたのターンです</h3>
+		
+		<table id="board"></table>
+
+	</body>
+
+</html>
+
+
+

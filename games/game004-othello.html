@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            background: linear-gradient(90deg, #fff 0%, #fff 25%, green 25%, green 75%, #000 70%, #000 100%);
+            text-align: center;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 50px;
+            color: #fff;
+        }
+
+        h2,
+        h3 {
+            font-size: 25px;
+            color: #FFF;
+        }
+
+        #vs {
+            color: #000;
+            text-shadow: 1px 1px 1px #FFF,
+            -1px 1px 1px #FFF,
+            1px -1px 1px #FFF,
+            -1px -1px 1px #FFF;
+
+        }
+
+        #info {
+            text-shadow: 1px 1px 1px #FFF,
+            -1px 1px 1px #FFF,
+            1px -1px 1px #FFF,
+            -1px -1px 1px #FFF;
+            color: #ba0000;
+        }
+
+        input {
+            font-size: 20px;
+            border: 2px solid #919191;
+            border-radius: 10%;
+            width: 25%;
+            height: 50px;
+        }
+
+        select {
+            font-size: 20px;
+            background-color: #000;
+            color: #FFF;
+            width: 25%;
+            height: 50px;
+        }
+
+        #board {
+            background-color: white;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        td.cell {
+            background-color: green;
+            width: 70px;
+            height: 70px;
+            color: white;
+            font-size: 30px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        td.cell>span {
+            display: inline-block;
+            width: 2em;
+            height: 2em;
+            border-radius: 1em;
+            margin: 0.25em;
+        }
+
+        td.cell>span.disc1 {
+            background: #fff;
+        }
+
+        td.cell>span.disc2 {
+            background: #000;
+        }
+
+        form,
+        h1,
+        h2,
+        h3,
+        table {
+            margin: 30px;
+        }
+    </style>
+
+    <script>
+        <!--ゲーム設定用-->
+        <!--ボードの大きさ(最大値)-->
+        var max = 100;
+
+        <!--処理用-->
+        <!--ボードの大きさ入力値-->
+        var inputsize = 0;
+        <!--駒表示用　0が無、1が白、2が黒-->
+        var disctype = [];
+        <!---->
+        var userturn = 0;
+
+        <!--マスのリスト-->
+        var cellList = [];
+        <!--選択可能なマスのインデックスリスト-->
+        var cellNumList = [];
+        <!--マスに入力された値のリスト-->
+        var cellValueList = [];
+        <!--ゲーム結果判定用-->
+        var listPossible = [];
+        var endFlg = 0;
+        var reCheckFlg = 0;
+
+        <!--起動時に実行-->
+        function startup() {
+            makePullMenu();
+            makeGameBoard();
+        }
+
+        <!--ボードの大きさ選択肢作成-->
+        function makePullMenu() {
+            var max = 100;
+            var pullmenu = document.getElementById("select1");
+            for (i = 4; i < max + 1; i = i + 2) {
+                var option = document.createElement("option");
+                option.id = "menu" + i;
+                pullmenu.appendChild(option)
+                document.getElementById("menu" + i).innerHTML = i + " × " + i;
+            }
+        }
+
+        <!--ボード作成-->
+        function makeGameBoard() {
+            var num = document.makeboardmenu.pullmenu.selectedIndex;
+            inputsize = (num + 2) * 2;
+
+            for (var x = 0; x < inputsize; x++) {
+                for (var y = 0; y < inputsize; y++) {
+                    disctype[[x, y]] = 0;
+                }
+            }
+            disctype[[num + 1, num + 1]] = 1;
+            disctype[[num + 2, num + 1]] = 2;
+            disctype[[num + 1, num + 2]] = 2;
+            disctype[[num + 2, num + 2]] = 1;
+
+
+            var b = document.getElementById("board");
+            b.innerHTML = "";
+
+            for (var y = 0; y < inputsize; y++) {
+                var tr = document.createElement("tr");
+
+                for (var x = 0; x < inputsize; x++) {
+                    var td = document.createElement("td");
+                    td.className = "cell"
+                    td.id = "cell" + x + y;
+                    td.onclick = clicked;
+                    var span = document.createElement("span");
+                    span.id = "celldisc" + x + y;
+                    span.className = "disc" + disctype[[x, y]];
+                    td.appendChild(span);
+                    tr.appendChild(td);
+                    listPossible.push("celldisc" + x + y);
+                }
+                b.appendChild(tr);
+            }
+            listPossible.splice(listPossible.indexOf("celldisc" + String(num + 1) + String(num + 1)), 1);
+            listPossible.splice(listPossible.indexOf("celldisc" + String(num + 2) + String(num + 1)), 1);
+            listPossible.splice(listPossible.indexOf("celldisc" + String(num + 1) + String(num + 2)), 1);
+            listPossible.splice(listPossible.indexOf("celldisc" + String(num + 2) + String(num + 2)), 1);
+        }
+
+        <!--ボードをクリックしたときの処理-->
+        function clicked(e) {
+            var celldiscid = e.target.id
+            var celldisctype = document.getElementById(celldiscid).className;
+            var s = celldiscid.split('');
+            var x = Number(s[s.length - 2]);
+            var y = Number(s[s.length - 1]);
+            var check = [];
+
+            if (userturn == 999) {
+                return;
+            }
+
+            document.getElementById("info").textContent = "対戦中";
+
+            if (celldisctype != "disc0") {
+                popUP("Exist");
+                return;
+            }
+
+            check.push(changeTop(inputsize, x, y))
+            check.push(changeRight(inputsize, x, y))
+            check.push(changeLeft(inputsize, x, y))
+            check.push(changeBottom(inputsize, x, y))
+            check.push(changeTopRight(inputsize, x, y))
+            check.push(changeTopLeft(inputsize, x, y))
+            check.push(changeBottomRight(inputsize, x, y))
+            check.push(changeBottomLeft(inputsize, x, y))
+
+
+
+            var checkReslt = 0;
+            for (i = 0; i < check.length; i++) {
+                if (check[i] == 0) {
+                    checkReslt++
+                }
+            }
+            if (checkReslt < 1) {
+                popUP("Ban");
+                return;
+            }
+
+            var del = listPossible.indexOf("celldisc" + x + y);
+            listPossible.splice(del, 1);
+
+
+            if (listPossible.length == 0) {
+                checkGameResult();
+            }
+
+            switch (userturn) {
+                case 0:
+                    document.getElementById("turn").textContent = "黒ユーザーのターンです";
+                    userturn = 1;
+                    break;
+                case 1:
+                    document.getElementById("turn").textContent = "白ユーザーのターンです";
+                    userturn = 0;
+                    break;
+            }
+        }
+
+        function changeTop(inputsize, x, y) {
+            disc = userturn + 1;
+            X = x
+            Y = y - 1
+            if (disctype[[X, Y]] == undefined | disctype[[X, Y]] == 0 | disctype[[X, Y]] == disc) {
+                return;
+            }
+
+            var list = [];
+            for (i = 1; i < inputsize; i++) {
+                X = String(x);
+                Y = String(y - i);
+                if (disctype[[X, Y]] == undefined) {
+                    break;
+                }
+                var t = document.getElementById("celldisc" + X + Y).className
+                if (t == "disc0") {
+                    break;
+                }
+                list.push(t);
+            }
+            check = changeCommon(list);
+            if (check == 999) {
+                return;
+            }
+
+            for (i = 0; i < list.length; i++) {
+                X = String(x);
+                Y = String(y - i);
+                disctype[[X, Y]] = disc;
+                document.getElementById("celldisc" + X + Y).className = "disc" + disctype[[X, Y]];
+            }
+            return 0;
+        }
+
+        function changeTopRight(inputsize, x, y) {
+            disc = userturn + 1;
+            X = x + 1;
+            Y = y - 1;
+            if (disctype[[X, Y]] == undefined | disctype[[X, Y]] == 0 | disctype[[X, Y]] == disc) {
+                return;
+            }
+            var list = [];
+            for (i = 1; i < inputsize; i++) {
+                X = String(x + i);
+                Y = String(y - i);
+                if (disctype[[X, Y]] == undefined) {
+                    break;
+                }
+                var t = document.getElementById("celldisc" + X + Y).className
+                if (t == "disc0") {
+                    break;
+                }
+                list.push(t);
+            }
+
+            check = changeCommon(list);
+            if (check == 999) {
+                return;
+            }
+
+            for (i = 0; i < list.length; i++) {
+                X = String(x + i);
+                Y = String(y - i);
+                disctype[[X, Y]] = disc;
+                document.getElementById("celldisc" + X + Y).className = "disc" + disctype[[X, Y]];
+            }
+            return 0;
+        }
+
+        function changeRight(s, x, y) {
+            disc = userturn + 1;
+            X = x + 1;
+            Y = y;
+            if (disctype[[X, Y]] == undefined | disctype[[X, Y]] == 0 | disctype[[X, Y]] == disc) {
+                return;
+            }
+            var list = [];
+            for (i = 1; i < inputsize; i++) {
+                X = String(x + i);
+                Y = String(y);
+                if (disctype[[X, Y]] == undefined) {
+                    break;
+                }
+                var t = document.getElementById("celldisc" + X + Y).className
+                if (t == "disc0") {
+                    break;
+                }
+                list.push(t);
+            }
+
+            check = changeCommon(list);
+            if (check == 999) {
+                return;
+            }
+
+            for (i = 0; i < list.length; i++) {
+                X = String(x + i);
+                Y = String(y);
+                disctype[[X, Y]] = disc;
+                document.getElementById("celldisc" + X + Y).className = "disc" + disctype[[X, Y]];
+            }
+            return 0;
+        }
+
+        function changeBottomRight(inputsize, x, y) {
+            disc = userturn + 1;
+            X = x + 1;
+            Y = y + 1;
+            if (disctype[[X, Y]] == undefined | disctype[[X, Y]] == 0 | disctype[[X, Y]] == disc) {
+                return;
+            }
+            var list = [];
+            for (i = 1; i < inputsize; i++) {
+                X = String(x + i);
+                Y = String(y + i);
+                if (disctype[[X, Y]] == undefined) {
+                    break;
+                }
+                var t = document.getElementById("celldisc" + X + Y).className
+                if (t == "disc0") {
+                    break;
+                }
+                list.push(t);
+            }
+
+            check = changeCommon(list);
+            if (check == 999) {
+                return;
+            }
+
+            for (i = 0; i < list.length; i++) {
+                X = String(x + i);
+                Y = String(y + i);
+                disctype[[X, Y]] = disc;
+                document.getElementById("celldisc" + X + Y).className = "disc" + disctype[[X, Y]];
+            }
+            return 0;
+        }
+
+        function changeBottom(inputsize, x, y) {
+            disc = userturn + 1;
+            X = x;
+            Y = y + 1;
+            if (disctype[[X, Y]] == undefined | disctype[[X, Y]] == 0 | disctype[[X, Y]] == disc) {
+                return;
+            }
+            var list = [];
+            for (i = 1; i < inputsize; i++) {
+                X = String(x);
+                Y = String(y + i);
+                if (disctype[[X, Y]] == undefined) {
+                    break;
+                }
+                var t = document.getElementById("celldisc" + X + Y).className
+                if (t == "disc0") {
+                    break;
+                }
+                list.push(t);
+            }
+
+            check = changeCommon(list);
+            if (check == 999) {
+                return;
+            }
+
+            for (i = 0; i < list.length; i++) {
+                X = String(x);
+                Y = String(y + i);
+                disctype[[X, Y]] = disc;
+                document.getElementById("celldisc" + X + Y).className = "disc" + disctype[[X, Y]];
+            }
+            return 0;
+        }
+
+        function changeBottomLeft(inputsize, x, y) {
+            disc = userturn + 1;
+            X = x - 1;
+            Y = y + 1;
+            if (disctype[[X, Y]] == undefined | disctype[[X, Y]] == 0 | disctype[[X, Y]] == disc) {
+                return;
+            }
+            var list = [];
+            for (i = 1; i < inputsize; i++) {
+                X = String(x - i);
+                Y = String(y + i);
+                if (disctype[[X, Y]] == undefined) {
+                    break;
+                }
+                var t = document.getElementById("celldisc" + X + Y).className
+                if (t == "disc0") {
+                    break;
+                }
+                list.push(t);
+            }
+
+            check = changeCommon(list);
+            if (check == 999) {
+                return;
+            }
+
+            for (i = 0; i < list.length; i++) {
+                X = String(x - i);
+                Y = String(y + i);
+                disctype[[X, Y]] = disc;
+                document.getElementById("celldisc" + X + Y).className = "disc" + disctype[[X, Y]];
+            }
+            return 0;
+        }
+
+        function changeLeft(inputsize, x, y) {
+            disc = userturn + 1;
+            X = x - 1;
+            Y = y;
+            if (disctype[[X, Y]] == undefined | disctype[[X, Y]] == 0 | disctype[[X, Y]] == disc) {
+                return;
+            }
+            var list = [];
+            for (i = 1; i < inputsize; i++) {
+                X = String(x - i);
+                Y = String(y);
+                if (disctype[[X, Y]] == undefined) {
+                    break;
+                }
+                var t = document.getElementById("celldisc" + X + Y).className
+                if (t == "disc0") {
+                    break;
+                }
+                list.push(t);
+            }
+
+            check = changeCommon(list);
+            if (check == 999) {
+                return;
+            }
+
+            for (i = 0; i < list.length; i++) {
+                X = String(x - i);
+                Y = String(y);
+                disctype[[X, Y]] = disc;
+                document.getElementById("celldisc" + X + Y).className = "disc" + disctype[[X, Y]];
+            }
+            return 0;
+        }
+
+        function changeTopLeft(inputsize, x, y) {
+            disc = userturn + 1;
+            X = x - 1;
+            Y = y - 1;
+            if (disctype[[X, Y]] == undefined | disctype[[X, Y]] == 0 | disctype[[X, Y]] == disc) {
+                return;
+            }
+            var list = [];
+            for (i = 1; i < inputsize; i++) {
+                X = String(x - i);
+                Y = String(y - i);
+                if (disctype[[X, Y]] == undefined) {
+                    break;
+                }
+                var t = document.getElementById("celldisc" + X + Y).className
+                if (t == "disc0") {
+                    break;
+                }
+                list.push(t);
+            }
+
+            check = changeCommon(list);
+            if (check == 999) {
+                return;
+            }
+
+            for (i = 0; i < list.length; i++) {
+                X = String(x - i);
+                Y = String(y - i);
+                disctype[[X, Y]] = disc;
+                document.getElementById("celldisc" + X + Y).className = "disc" + disctype[[X, Y]];
+            }
+            return 0;
+        }
+
+        function changeCommon(list) {
+            var check = 0;
+            for (i = 0; i < list.length; i++) {
+                if (list[i] == "disc" + disc) {
+                    check++
+                }
+            }
+            if (check < 1) {
+                return 999;
+            }
+        }
+
+        function popUP(status) {
+            var listPopUp = ["Exist", "Ban", "Pass", "WinUser1", "WinUser2", "Draw"];
+            var id = listPopUp.indexOf(status);
+            switch (id) {
+                case 0:
+                    window.alert("設置済みです。よく見て下さい。");
+                    break;
+                case 1:
+                    window.alert("設置不可です。よく考えて下さい。");
+                    break;
+                case 2:
+                    window.alert("まだ配置できるところがあります。\n頭使って下さい。");
+                    break;
+                case 3:
+                    window.alert("白ユーザーの勝ちです！");
+                    document.getElementById("turn").textContent = "対戦終了";
+                    document.getElementById("info").textContent = "白ユーザーの勝ちです。「もう一度遊ぶ」をクリックしてください。";
+                    userturn = 999;
+                    break;
+                case 4:
+                    window.alert("黒ユーザーの勝ちです！");
+                    document.getElementById("turn").textContent = "対戦終了";
+                    document.getElementById("info").textContent = "黒ユーザーの勝ちです。「もう一度遊ぶ」をクリックしてください。";
+                    userturn = 999;
+                    break;
+                case 5:
+                    window.alert("引き分けです・・・");
+                    document.getElementById("turn").textContent = "対戦終了";
+                    document.getElementById("info").textContent = "引き分けです。「もう一度遊ぶ」をクリックしてください。";
+                    userturn = 999;
+                    break;
+
+            }
+        }
+
+        function checkGameResult() {
+            var user1disc = 0;
+            var user2disc = 0;
+
+            for (var x = 0; x < inputsize; x++) {
+                for (var y = 0; y < inputsize; y++) {
+                    if (disctype[[x, y]] == 1) {
+                        user1disc++
+                    } else if (disctype[[x, y]] == 2) {
+                        user2disc++
+                    }
+                }
+            }
+
+            if (user1disc > user2disc) {
+                popUP("WinUser1");
+            } else if (user2disc > user1disc) {
+                popUP("WinUser2");
+            } else {
+                popUP("Draw");
+            }
+
+        }
+    </script>
+</head>
+
+<body onload="startup()">
+    <h1 id="title">OthellO</h1>
+
+    <h3 id="vs">ユーザーVSユーザー</h3>
+
+    <form id="form1" name="makeboardmenu" onchange="makeGameBoard()">
+        <h3>ボード作成</h3>
+        <select id="select1" name="pullmenu"></select>
+    </form>
+
+    <form id="form2" name="start_end">
+        <input type="button" value="もう一度遊ぶ" onclick="location.reload();">
+        <input type="button" value="ゲーム終了" onclick="window.close();">
+    </form>
+
+    <h3 id="info"><br></h3>
+    <h3 id="turn">白ユーザーのターンです</h3>
+
+    <form id="form3" name="playAct">
+        <input type="button" value="結果判定" onclick="checkGameResult();">
+    </form>
+
+    <table id="board"></table>
+
+
+</body>
+
+</html>
+
+
+

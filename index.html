@@ -1,0 +1,215 @@
+<!--
+▼参考サイト
+コンパスカフェ
+https://compass-sanrio-cafe.jp/store/products/list.php?category_id=3
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>TokoneruTokoro</title>
+    <style>
+        body {
+            --main-color: #c3177a;
+            height: 1000px;
+            background-color: #222222;
+            margin: 0;
+
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0 40px;
+        }
+
+        li {
+            list-style-type: none;
+        }
+
+        .menu {
+            max-height: 0;
+            margin: 0;
+            padding: 0;
+            list-style-type: none;
+            overflow: hidden;
+            transition: max-height ease-out 1.0s;
+        }
+
+        #main {
+            float: left;
+            width: 60%;
+            height: 100%;
+
+        }
+
+        #side-bar {
+            float: left;
+            width: 30%;
+            height: 100%;
+            padding: 30px;
+        }
+
+        #side-bar li {
+            border-top: 1px dotted #FFF;
+            border-bottom: 1px dotted #FFF;
+            padding: 10px;
+        }
+
+        #side-bar a {
+            text-decoration: none;
+            color: var(--main-color);
+        }
+
+        #footer {
+            background-color: #000;
+            text-align: center;
+            color: #FFF;
+            clear: both;
+            padding: 30px;
+            bottom: 0;
+            width: 100%;
+            height: 20px;
+        }
+
+        #header-top {
+            width: 100%;
+            background-color: #FFF;
+            padding: 1px;
+            display: table;
+        }
+
+        #header-top li {
+            display: table-cell;
+            height: 50px;
+            vertical-align: middle;
+            border-left: 5px solid var(--main-color);
+        }
+
+        #header-top li:last-child {
+            border-right: 5px solid var(--main-color);
+        }
+
+        #header-top a {
+            width: 2000px;
+            height: auto;
+            display: table-cell;
+            text-align: center;
+            text-decoration: none;
+            color: var(--main-color);
+        }
+
+        #header-bottom {
+            background-color: var(--main-color);
+            padding: 1px;
+            display: table;
+        }
+
+        #header-bottom li {
+            display: table-cell;
+            height: 50px;
+            vertical-align: middle;
+            border-left: 5px solid #FFF;
+        }
+
+        #header-bottom li:last-child {
+            border-right: 5px solid #FFF;
+        }
+
+        .bottom-menu {
+            width: 2000px;
+            height: auto;
+            display: table-cell;
+            text-align: center;
+            text-decoration: none;
+            color: #FFF;
+        }
+
+        h1 {
+            color: #FFF;
+            padding: 10px 20px;
+            border-left: 7px solid var(--main-color);
+            border-bottom: 7px solid var(--main-color);
+        }
+
+        #headmenu {
+            display: block;
+        }
+
+        #headmenu li:hover>.menu {
+            max-height: 500px;
+        }
+
+        .information {
+            padding: 19px 24px 12px;
+            background-color: #FFF;
+            border: 1px solid #FFF;
+            border-radius: 20px;
+        }
+
+        .information li:before {
+            content: '■';
+        }
+    </style>
+</head>
+
+<body>
+    <header id="header">
+        <div id="logo"></div>
+        <div id="header-top">
+            <nav id="nav-bar">
+                <ul>
+                    <li><a href="#">INFORMATION</a></li>
+                </ul>
+            </nav>
+        </div>
+        <div id="header-bottom">
+            <nav id="headmenu">
+                <ul>
+                    <li><a class="bottom-menu" href="#">XXX</a>
+                        <li><a class="bottom-menu" href="#">XXX</a></li>
+                        <li><a class="bottom-menu" href="#">XXX</a></li>
+                </ul>
+            </nav>
+            <nav id="buy">
+
+            </nav>
+        </div>
+    </header>
+    <article id="main">
+        <h1>だれ？</h1>
+        <div class="information">
+            <ul>
+                <li>Web運用保守マン</li>
+                <li>生物畑。元事務 兼 ひとり情シス</li>
+                <li>現在ECサイト安定稼働体制構築に奮闘中</li>
+            </ul>
+        </div>
+        <h1>何が出来る？</h1>
+        <div class="information">
+            <ul>
+                <li>フロントエンド</li>
+                <p>既存WebサイトのHTML・CSS編集</p>                
+                <li>サーバーサイド</li>
+                <p>Linuxエラー調査・SQLでのデータ抽出</p>
+                <li>インフラ</li>
+                <p>PCキッティング・有線無線NW構築</p>
+                <li>テクニカルサポート</li>
+                <p>OA機器・家電・音響の選定導入から廃棄</p>
+            </ul>
+        </div>
+    </article>
+    <div id="side-bar">
+        <aside>
+            <h1>作品は？</h1>
+            <ul>
+                <li><a href="#">games-</a></li>
+                <li><a href="#">games-</a></li>
+            </ul>
+        </aside>
+    </div>
+    <footer id="footer">
+        <address>tokoneru</address>
+    </footer>
+</body>
+</html>
