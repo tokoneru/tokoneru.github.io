@@ -1,63 +1,106 @@
-<!--
-▼参考サイト
-コンパスカフェ
-https://compass-sanrio-cafe.jp/store/products/list.php?category_id=3
--->
-
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>TokoneruTokoro</title>
+    <link href="https://use.fontawesome.com/releases/v5.0.6/css/all.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css">
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.bundle.min.js"></script>
     <style>
-        body {
-            --main-color: #c3177a;
-            height: 1000px;
-            background-color: #222222;
-            margin: 0;
-
+        html {
+            position: relative;
+            min-height: 100%;
         }
 
-        ul {
-            list-style-type: none;
-            padding: 0 40px;
+        body {
+            font-size: 15px;
+            --main-color: #c3177a;
+            color: #FFF;
+            background-color: #222222;
+            margin: 0 0 100px 0;
+            padding: 0;
         }
 
         li {
             list-style-type: none;
-        }
-
-        .menu {
-            max-height: 0;
-            margin: 0;
-            padding: 0;
-            list-style-type: none;
-            overflow: hidden;
-            transition: max-height ease-out 1.0s;
-        }
-
-        #main {
-            float: left;
-            width: 60%;
-            height: 100%;
 
         }
 
-        #side-bar {
-            float: left;
-            width: 30%;
-            height: 100%;
-            padding: 30px;
+        .container {
+            max-width: 100%;
+
         }
 
-        #side-bar li {
+        #header {
+            width: 100%;
+            text-align: center;
+            vertical-align: middle;
+
+        }
+
+        #header a {
+            text-decoration: none;
+        }
+
+        #header-top a {
+            width: 100%;
+            color: var(--main-color);
+        }
+
+        #header-bottom a {
+            color: #FFF;
+        }
+
+        #header-top [class^=col-] {
+            height: 50px;
+            background-color: #fff;
+            border-left: 10px solid var(--main-color);
+        }
+
+        #header-top [class^=col-]:last-child {
+            border-right: 10px solid var(--main-color);
+        }
+
+        #header-bottom [class^=col-] {
+            height: 50px;
+            background-color: var(--main-color);
+            border-left: 10px solid #fff;
+        }
+
+        #header-bottom [class^=col-]:last-child {
+            border-right: 10px solid #fff;
+        }
+
+        h1 {
+            margin: 10px;
+            font-size: 25px;
+            color: #FFF;
+            padding: 10px 20px;
+            border-left: 7px solid var(--main-color);
+            border-bottom: 7px solid var(--main-color);
+        }
+
+        .main-contents {
+            color: #000;
+            padding: 19px 24px 12px;
+            background-color: #FFF;
+            border: 1px solid #FFF;
+            border-radius: 20px;
+        }
+
+        .main-contents li:before {
+            content: '■';
+        }
+
+        .side-contents li {
             border-top: 1px dotted #FFF;
             border-bottom: 1px dotted #FFF;
             padding: 10px;
         }
 
-        #side-bar a {
-            text-decoration: none;
+        .side-contents a {
             color: var(--main-color);
         }
 
@@ -65,151 +108,116 @@ https://compass-sanrio-cafe.jp/store/products/list.php?category_id=3
             background-color: #000;
             text-align: center;
             color: #FFF;
-            clear: both;
-            padding: 30px;
+            position: absolute;
             bottom: 0;
             width: 100%;
-            height: 20px;
+            height: 100px;
         }
 
-        #header-top {
-            width: 100%;
-            background-color: #FFF;
-            padding: 1px;
-            display: table;
+        #footer p {
+            font-style: italic;
         }
 
-        #header-top li {
-            display: table-cell;
-            height: 50px;
-            vertical-align: middle;
-            border-left: 5px solid var(--main-color);
-        }
-
-        #header-top li:last-child {
-            border-right: 5px solid var(--main-color);
-        }
-
-        #header-top a {
-            width: 2000px;
-            height: auto;
-            display: table-cell;
-            text-align: center;
-            text-decoration: none;
+        .btn-sns{
+            margin: 0 10px;
             color: var(--main-color);
+            font-size: 30px;
         }
 
-        #header-bottom {
-            background-color: var(--main-color);
-            padding: 1px;
-            display: table;
-        }
-
-        #header-bottom li {
-            display: table-cell;
-            height: 50px;
-            vertical-align: middle;
-            border-left: 5px solid #FFF;
-        }
-
-        #header-bottom li:last-child {
-            border-right: 5px solid #FFF;
-        }
-
-        .bottom-menu {
-            width: 2000px;
-            height: auto;
-            display: table-cell;
-            text-align: center;
-            text-decoration: none;
-            color: #FFF;
-        }
-
-        h1 {
-            color: #FFF;
-            padding: 10px 20px;
-            border-left: 7px solid var(--main-color);
-            border-bottom: 7px solid var(--main-color);
-        }
-
-        #headmenu {
-            display: block;
-        }
-
-        #headmenu li:hover>.menu {
-            max-height: 500px;
-        }
-
-        .information {
-            padding: 19px 24px 12px;
-            background-color: #FFF;
-            border: 1px solid #FFF;
-            border-radius: 20px;
-        }
-
-        .information li:before {
-            content: '■';
-        }
     </style>
 </head>
 
 <body>
     <header id="header">
-        <div id="logo"></div>
-        <div id="header-top">
-            <nav id="nav-bar">
-                <ul>
-                    <li><a href="#">INFORMATION</a></li>
-                </ul>
-            </nav>
+        <div id="header-top" class="container">
+            <div class="row">
+                <div class="col-md-12 col-sm-12"><a href="#">INFORMATION</a></div>
+            </div>
         </div>
-        <div id="header-bottom">
-            <nav id="headmenu">
-                <ul>
-                    <li><a class="bottom-menu" href="#">XXX</a>
-                        <li><a class="bottom-menu" href="#">XXX</a></li>
-                        <li><a class="bottom-menu" href="#">XXX</a></li>
-                </ul>
-            </nav>
-            <nav id="buy">
-
-            </nav>
+        <div id="header-bottom" class="container">
+            <div class="row">
+                <div class="col-md-4 col-sm-4"><a href="#">XXX</a></div>
+                <div class="col-md-4 col-sm-4"><a href="#">XXX</a></div>
+                <div class="col-md-4 col-sm-4"><a href="#">XXX</a></div>
+            </div>
         </div>
     </header>
-    <article id="main">
-        <h1>だれ？</h1>
-        <div class="information">
-            <ul>
-                <li>Web運用保守マン</li>
-                <li>生物畑。元事務 兼 ひとり情シス</li>
-                <li>現在ECサイト安定稼働体制構築に奮闘中</li>
-            </ul>
+    <div id="main" class="container">
+        <div class="row">
+            <div id="contents" class="col-md-8 col-sm-12">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-md-12 col-sm-12">
+                            <h1>だれ？</h1>
+                            <ul class="main-contents">
+                                <li>Web運用保守マン</li>
+                                <li>生物畑。元事務 兼 ひとり情シス</li>
+                                <li>現在ECサイト安定稼働体制構築に奮闘中</li>
+                            </ul>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="container">
+                    <div class="row">
+                        <div class="col-md-12 col-sm-12">
+                            <h1>何が出来る？</h1>
+                            <ul class="main-contents">
+                                <li>フロントエンド</li>
+                                <p>既存WebサイトのHTML・CSS編集</p>
+                                <li>サーバーサイド</li>
+                                <p>Linuxエラー調査・SQLでのデータ抽出</p>
+                                <li>インフラ</li>
+                                <p>PCキッティング・有線無線NW構築</p>
+                                <li>テクニカルサポート</li>
+                                <p>PC・OA機器・家電・音響の選定導入から廃棄</p>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="sidebar" class="col-md-4 col-sm-12">
+
+                <div class="container">
+                    <div class="row">
+                        <div class="col-md-12 col-sm-12">
+                            <h1>作品は？</h1>
+                            <ul class="side-contents">
+                                <li><a href="games/game002-tic-tac-toe.html">games_tic-tac-toe</a></li>
+                                <li><a href="games/game004-othello-sizefixed-vs_user.html">games_othello</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="container">
+                    <div class="row">
+                        <div class="col-md-12 col-sm-12">
+                            <h1>※鋭意作成中</h1>
+                            <ul class="side-contents">
+                                <li><a href="making/game004-othello-sizefree-vs_cpu.html">games_othello（ボード大きさ非固定）</a></li>
+                                <li><a href="making/game004-othello-sizefree-vs_cpu.html">games_othello（vsCPU）</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
         </div>
-        <h1>何が出来る？</h1>
-        <div class="information">
-            <ul>
-                <li>フロントエンド</li>
-                <p>既存WebサイトのHTML・CSS編集</p>                
-                <li>サーバーサイド</li>
-                <p>Linuxエラー調査・SQLでのデータ抽出</p>
-                <li>インフラ</li>
-                <p>PCキッティング・有線無線NW構築</p>
-                <li>テクニカルサポート</li>
-                <p>OA機器・家電・音響の選定導入から廃棄</p>
-            </ul>
-        </div>
-    </article>
-    <div id="side-bar">
-        <aside>
-            <h1>作品は？</h1>
-            <ul>
-                <li><a href="games/game002-tic-tac-toe.html">games_tic-tac-toe</a></li>
-                <li><a href="games/game004-othello.html">games_othello</a></li>
-            </ul>
-        </aside>
     </div>
     <footer id="footer">
-        <address>tokoneru</address>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <p>account making･･･</p>
+                </div>
+            </div>
+            <a href="#"><i class="btn-sns fab fa-facebook-square"></i></a>
+            <a href="#"><i class="btn-sns fab fa-twitter-square"></i></a>
+            <a href="#"><i class="btn-sns fab fa-github-square"></i></a>
+        </div>
     </footer>
 </body>
+
 </html>
