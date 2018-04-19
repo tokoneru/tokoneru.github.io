@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <title>BreakOut</title>
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+        }
+
+        body {
+            background: #82a9d6;
+
+        }
+        
+        h1{
+            font-size: 40px;
+            font-family: 'Arial Black';
+            text-align: center;
+            color: #0066dd;
+        }
+
+        canvas {
+            border: 30px solid #FFFFFF;
+            background: #82a9d6;
+            display: block;
+            margin: 0 auto;
+        }
+
+
+    </style>
+
+</head>
+
+<body>
+   <h1>ブロック崩し</h1>
+    <canvas id="myCanvas" width="650" height="600"></canvas>
+
+
+    <script>
+        //========================================
+        //変数定義
+        //========================================
+        var canvas = document.getElementById("myCanvas");
+        var ctx = canvas.getContext("2d");
+        //スコア
+        var score = 0;
+        //プレイヤー残基
+        var life = 5;
+
+        //ゲーム結果フラグ　0：ゲーム続行、1：ゲームオーバー、2：ゲームクリア
+        var gameresultflg = 0;
+
+        //=====ボール関連
+        var x = canvas.width / 2;
+        var y = canvas.height - 60;
+        //図形大きさ
+        var ballRadius = 20;
+
+        //移動方向と1度に進む距離
+        var dx = 3;
+        var dy = -3;
+
+        //図形色
+
+        //=====バー描写
+        var barHeight = 20;
+        var barWidth = 85;
+        var barX = (canvas.width - barWidth) / 2;
+        var rightKeyPressed = false;
+        var leftKeyPressed = false;
+
+        //=====ブロック描写
+        var blockRowCount = 6;
+        var blockColumnCount = 7;
+        var blockWidth = 80;
+        var blockHeight = 20;
+        var blockPadding = 5;
+        var blockOffsetTop = 30;
+        var blockOffsetLeft = 30;
+        var allblocks = blockRowCount * blockColumnCount;
+
+        //ブロック位置とステータス（存在する：1、消える：0）の設定
+        var blocks = [];
+        for (c = 0; c < blockColumnCount; c++) {
+            blocks[c] = [];
+            for (r = 0; r < blockRowCount; r++) {
+                blocks[c][r] = {
+                    x: 0,
+                    y: 0,
+                    status: 1
+                };
+            }
+        }
+
+        //========================================
+        //関数定義：描画処理・メッセージ表示
+        //========================================
+
+        //ボール描画処理
+        function drawBall() {
+            if (allblocks / 5 >= score) {
+                ctx.fillStyle = "#dbca00";
+            } else if (allblocks / 2.5 >= score && allblocks / 5 < score) {
+                ctx.fillStyle = "#db6d00";
+            } else if (allblocks / 1.5 >= score && allblocks / 2.5 < score) {
+                ctx.fillStyle = "#db1900";
+            } else if (allblocks / 1.2 >= score && allblocks / 1.5 < score) {
+                ctx.fillStyle = "#FFFFFF";
+            } else {
+                ctx.fillStyle = "#77a1d3";
+            }
+            ctx.beginPath();
+            ctx.arc(x, y, ballRadius, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.closePath();
+        }
+        //バー描画処理
+        function drawbar() {
+            ctx.beginPath();
+            ctx.rect(barX, canvas.height - barHeight, barWidth, barHeight);
+            ctx.fillStyle = "#0066dd";
+            ctx.fill();
+            ctx.closePath();
+        }
+        //ブロック描画処理
+        function drawblocks() {
+            for (c = 0; c < blockColumnCount; c++) {
+                for (r = 0; r < blockRowCount; r++) {
+                    if (blocks[c][r].status == 1) {
+                        var blockX = (c * (blockWidth + blockPadding)) + blockOffsetLeft;
+                        var blockY = (r * (blockHeight + blockPadding)) + blockOffsetTop;
+                        blocks[c][r].x = blockX;
+                        blocks[c][r].y = blockY;
+                        ctx.beginPath();
+                        ctx.rect(blockX, blockY, blockWidth, blockHeight);
+                        ctx.fillStyle = "#0066dd";
+                        ctx.fill();
+                        ctx.closePath();
+                    }
+                }
+            }
+        }
+        //スコア描写処理
+        function drawScore() {
+            ctx.font = "20px arial black";
+            ctx.fillStyle = "#0066dd";
+            ctx.fillText("Score: " + score, 8, 20);
+        }
+        //プレイヤー残基描写処理
+        function drawLife() {
+            ctx.font = "20px arial black";
+            ctx.fillStyle = "#0066dd";
+            ctx.fillText("Life: " + life, canvas.width - 80, 20);
+        }
+
+        //ブロック衝突処理
+        //ボールとブロックのX座標Y座標を比較
+        //ブロックのステータスが1の場合、そのブロックのステータスを0にして非表示
+        //ボールの速度を速めて、は跳ね返す
+        function collisionDetection() {
+            for (c = 0; c < blockColumnCount; c++) {
+                for (r = 0; r < blockRowCount; r++) {
+                    var b = blocks[c][r];
+                    if (b.status === 1 && x > b.x && x < b.x + blockWidth && y > b.y && y < b.y + blockHeight) {
+                        dy -= 0.25;
+                        dy = -dy;
+                        b.status = 0;
+                        score++;
+
+                        if (score === blockRowCount * blockColumnCount) {
+                            gameresultflg = 2;
+                            gameresult();
+                        }
+                    }
+                }
+            }
+        }
+
+        //残基が減った際の、ボール・バー初期位置データ再セット
+        function resetdata() {
+            x = canvas.width / 2;
+            y = canvas.height - 60;
+            barX = (canvas.width - barWidth) / 2
+        }
+
+        //ゲームオーバー・クリア時の処理
+        //gameresultflgで分岐判定
+        //OKでリロード、キャンセルでブラウザクローズ
+        function gameresult() {
+            var message;
+            if (gameresultflg === 2) {
+                message = "Game Cleare!!!\n\n";
+            } else if (gameresultflg === 1) {
+                message = "GAME OVER･･･\n\n"
+            };
+            message += "スコア：" + score + "\n"
+            message += "ライフ：" + life + "\n\n"
+            message += "再挑戦しますか？？";
+            //「OK」ボタンをクリックした時
+            if (confirm(message)) {
+                document.location.reload();
+                //「キャンセル」ボタンをクリックした時
+            } else {
+                window.close();
+            }
+        }
+
+        //========================================
+        //関数定義：入力
+        //========================================
+
+        //キー入力検知と処理（押す）
+        function keyDownHandler(e) {
+            if (e.keyCode == 39) {
+                rightKeyPressed = true;
+            } else if (e.keyCode == 37) {
+                leftKeyPressed = true;
+            }
+        }
+
+        //キー入力検知と処理（離す）
+        function keyUpHandler(e) {
+            if (e.keyCode == 39) {
+                rightKeyPressed = false;
+            } else if (e.keyCode == 37) {
+                leftKeyPressed = false;
+            }
+        }
+
+        //マウスカーソル追従処理
+        function mouseMoveHandler(e) {
+            var relativeX = e.clientX - canvas.offsetLeft;
+            if (relativeX > 0 && relativeX < canvas.width) {
+                barX = relativeX - barWidth / 2;
+            }
+        }
+
+        //========================================
+        //関数定義：メイン処理
+        //========================================
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawBall();
+            drawblocks();
+            drawbar();
+            collisionDetection();
+            drawScore();
+            drawLife();
+            x += dx;
+            y += dy;
+
+            //壁に激突して弾む処理（上）、下に激突したらゲームオーバー処理
+            if (y + dy < ballRadius) {
+                dy = -dy;
+            } else if (y + dy > canvas.height - ballRadius) {
+                //数字は当たり判定微調整
+                if (x > barX - 20 && x < barX + barWidth + 20) {
+                    dy = -dy;
+                } else {
+                    life--;
+                    if (!life) {
+                        gameresultflg = 1;
+                        gameresult();
+                    } else {
+                        dy = -dy;
+                        resetdata();
+                    }
+                }
+            }
+
+
+            //壁に激突して弾む処理（左右）
+            if (x + dx > canvas.width - ballRadius || x + dx < ballRadius) {
+                dx = -dx;
+            }
+
+            //バー動作処理
+            if (rightKeyPressed && barX < canvas.width - barWidth) {
+                barX += 10;
+            } else if (leftKeyPressed && barX > 0) {
+                barX -= 10;
+            }
+
+        }
+        //キー入力・マウスカーソル追従
+        document.addEventListener("keydown", keyDownHandler, false);
+        document.addEventListener("keyup", keyUpHandler, false);
+        document.addEventListener("mousemove", mouseMoveHandler, false);
+
+        //メイン処理を繰り返し行う
+        setInterval(draw, 10);
+
+    </script>
+
+
+</body>
+
+
+
+</html>
